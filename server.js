@@ -3,11 +3,17 @@ import http from 'http';
 import httpProxy from 'http-proxy';
 
 program
-  .option('-p, --port <port>', 'port number to listen on', parseInt, 3000)
-  .option('-t, --target <url>', 'target server url', 'https://trailhead.salesforce.com/en/home')
-  .parse(process.argv);
+    .option('-d, --debug', 'output debugging info')
+    .option('-p, --port <port>', 'port number to listen on', parseInt, 3000)
+    .option('-t, --target <url>', 'target server url', 'https://trailhead.salesforce.com/en/home')
+    .parse(process.argv);
 
-const { port, target } = program;
+const { debug, port, target } = program;
+
+if (debug) {
+    console.log('csp-proxy started with the following options:\n', program.opts());
+}
+
 const proxy = httpProxy.createProxyServer({});
 
 proxy.on('proxyReq', (proxyReq, req, res) => {
