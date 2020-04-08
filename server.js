@@ -1,14 +1,19 @@
 import program from 'commander';
+import fs from 'fs';
 import http from 'http';
+import https from 'https'
 import httpProxy from 'http-proxy';
 
 program
+    .option('-c, --certificate <certificate>', 'path to cert', 'cert.pem')
     .option('-d, --debug', 'output debugging info')
+    .option('-k, --key <key>', 'path to cert key', 'key.pem')
     .option('-p, --port <port>', 'port number to listen on', parseInt, 3000)
+    .option('-s, --ssl', 'use use https', false)
     .option('-t, --target <url>', 'target server url', 'https://trailhead.salesforce.com/en/home')
     .parse(process.argv);
 
-const { debug, port, target } = program;
+const { cert, debug, key, port, ssl, target } = program;
 
 if (debug) {
     console.log('csp-proxy started with the following options:\n', program.opts());
@@ -22,7 +27,19 @@ proxy.on('proxyReq', (proxyReq, req, res) => {
     res.setHeader('x-foo', 'bar');
 });
 
-http.createServer((req, res) => {
+let protocol, options;
+if (ssl) {
+    protocol = https;
+    options = {
+        key: fs.readFileSync(key),
+        cert: fs.readFileSync(cert)
+    }
+} else {
+    protocol = http;
+    options = {};
+}
+
+protocol['createServer'](options, (req, res) => {
     // Save original writeHead method.
     const { writeHead: origWriteHead } = res;
 
