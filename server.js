@@ -7,13 +7,14 @@ import httpProxy from 'http-proxy';
 program
     .option('-c, --cert <cert>', 'path to cert', 'cert.pem')
     .option('-d, --debug', 'output debugging info')
+    .option('-f, --frame-src <frame-src>', 'value of frame-src directive', '*.force.com')
     .option('-k, --key <key>', 'path to cert key', 'key.pem')
     .option('-p, --port <port>', 'port number to listen on', (val) => parseInt(val), 3000)
     .option('-s, --ssl', 'use use https', false)
     .option('-t, --target <url>', 'target server url', 'https://trailhead.salesforce.com')
     .parse(process.argv);
 
-const { cert, debug, key, port, ssl, target } = program;
+const { cert, frameSrc, debug, key, port, ssl, target } = program;
 
 if (debug) {
     console.log('csp-proxy started with the following options:\n', program.opts());
@@ -47,7 +48,7 @@ protocol['createServer'](options, (req, res) => {
     // Override res.writeHead with custom logic that manipulates headers.
     res.writeHead = (...args) => {
         // Rewrite or remove headers that prevent loading the target url in an iframe.
-        res.setHeader('content-security-policy', 'frame-src *.force.com;');
+        res.setHeader('content-security-policy', `frame-src ${frameSrc};`);
         res.removeHeader('x-frame-options');
 
         // Invoke original method.
@@ -56,7 +57,3 @@ protocol['createServer'](options, (req, res) => {
 
     proxy.web(req, res, { target, changeOrigin: true });
 }).listen(port);
-
-
-
-
