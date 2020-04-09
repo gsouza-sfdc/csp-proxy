@@ -46,9 +46,8 @@ protocol['createServer'](options, (req, res) => {
 
     // Override res.writeHead with custom logic that manipulates headers.
     res.writeHead = (...args) => {
-        // Rewrite or remove headers. In this case we need to remove
-        // headers that prevent loading the target url in an iframe.
-        res.removeHeader('content-security-policy');
+        // Rewrite or remove headers that prevent loading the target url in an iframe.
+        res.setHeader('content-security-policy', 'frame-src *.force.com;');
         res.removeHeader('x-frame-options');
 
         // Invoke original method.
