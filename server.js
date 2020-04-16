@@ -38,10 +38,15 @@ const proxy = httpProxy.createProxyServer({});
 proxy.on('proxyReq', (proxyReq, req, res) => {
     // This only works if you're adding new headers.
     // Rewriting or removing existing headers doesn't work here.
-    res.setHeader('x-forwarded-by', 'csp-proxy');
+    res.setHeader('x-forwarded-by', 'iframe-csp-proxy');
 });
 
 protocol['createServer'](options, (req, res) => {
+    if (req.method === 'POST') {
+        // Proxy POST through GET.
+        req.method = 'GET';
+    }
+
     // Save original writeHead method.
     const { writeHead: origWriteHead } = res;
 
