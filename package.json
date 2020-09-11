@@ -11,7 +11,7 @@
   "type": "module",
   "dependencies": {
     "commander": "^5.0.0",
-    "http-proxy": "^1.18.0"
+    "http-proxy": "^1.18.1"
   },
   "engines": {
     "node": "^13.12.0"
